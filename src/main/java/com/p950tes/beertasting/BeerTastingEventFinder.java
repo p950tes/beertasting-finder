@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BeerTastingEventFinder {
 
-	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	
 	private final boolean htmlOutput;
 	private final boolean nofilter;
 	
@@ -91,7 +89,8 @@ public class BeerTastingEventFinder {
 	}
 	
 	private static LocalDateTime parseDateTime(String dateString) {
-		return LocalDateTime.parse(dateString, DATE_FORMAT);
+		
+		return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_DATE_TIME);
 	}
 
 	private List<Event> findAvailableEvents(List<Event> events) {
@@ -100,9 +99,12 @@ public class BeerTastingEventFinder {
 		}
 		List<Event> availableEvents = events.stream()
 			.filter(Event::isAvailable)
-			.filter(event -> ! event.getName().startsWith("Ost "))
+			.filter(this::isEventDesirable)
 			.toList();
 		return availableEvents;
+	}
+	private boolean isEventDesirable(Event event) {
+		return ! event.getName().startsWith("Ost ");
 	}
 
 	private void printEvents(List<Event> events) {
